@@ -1,13 +1,7 @@
 <?php 
-    date_default_timezone_set('America/Sao_Paulo');
-    require_once "lib/vendor/autoload.php";
-
-    \PagSeguro\Library::initialize();
-    \PagSeguro\Library::cmsVersion()->setName("Nome")->setRelease("1.0.0");
-    \PagSeguro\Library::moduleVersion()->setName("Nome")->setRelease("1.0.0");
-    \PagSeguro\Configuration\Configure::getAccountCredentials()
+    require_once('config.php');
+    require_once('utils.php');
 ?>
-
 <html>
 <head>
     <meta charset="UTF-8">
@@ -15,15 +9,15 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
     <?php 
+        $params = array(
+            'email' => $PAGSEGURO_EMAIL,
+            'token' => $PAGSEGURO_TOKEN
+        );
+        $header = array();
 
-      try {  
-            $sessionCode = \PagSeguro\Services\Session::create(
-                \PagSeguro\Configuration\Configure::getAccountCredentials()
-            );
-      } catch (PagSeguroServiceException $e) {  
-          die($e->getMessage());  
-      }  
-      
+        $response = curlExec($PAGSEGURO_API_URL."/sessions", $params, $header);
+        $json = json_decode(json_encode(simplexml_load_string($response)));
+        $sessionCode = $json->id;
     ?>
 </head>
 <body>
@@ -99,7 +93,7 @@
         });
 
         jQuery(function($) {
-          PagSeguroDirectPayment.setSessionId('<?php echo $sessionCode->getResult();?>');
+          PagSeguroDirectPayment.setSessionId('<?php echo $sessionCode;?>');
 
           PagSeguroDirectPayment.getPaymentMethods({
             success: function(json){
@@ -156,6 +150,5 @@
         });
 
     </script>
-
 </body>
 </html>
