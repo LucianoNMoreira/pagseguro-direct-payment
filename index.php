@@ -69,7 +69,7 @@
                         </div>
                         <div class="row">
                             <div class="col-xs-12">
-                                <button class="subscribe btn btn-success btn-lg btn-block" type="submit">Pagar</button>
+                                <button class="subscribe btn btn-success btn-lg btn-block" type="button">Pagar</button>
                             </div>
                         </div>
                     </form>
@@ -87,9 +87,48 @@
   <script type="text/javascript" src="https://stc.sandbox.pagseguro.uol.com.br/pagseguro/api/v2/checkout/pagseguro.directpayment.js"></script>
   <script>
 
-        $("button:submit").click(function(){
-            var senderHash = PagSeguroDirectPayment.getSenderHash();
-            $("input[name='senderHash']").val(senderHash);
+        $("button").click(function(){
+
+            PagSeguroDirectPayment.getBrand({
+                cardBin: $("input[name='cardNumber']").val().replace(/ /g,''),
+                success: function(json){
+                var brand = json.brand.name;
+
+                $("input[name='brand']").val(brand);
+
+                console.log(brand);
+                
+                var param = {
+                    cardNumber: $("input[name='cardNumber']").val().replace(/ /g,''),
+                    brand: brand,
+                    cvv: $("input[name='cardCVC']").val(),
+                    expirationMonth: $("input[name='cardExpiry']").val().split('/')[0],
+                    expirationYear: $("input[name='cardExpiry']").val().split('/')[1],
+                    success: function(json){
+                        var token = json.card.token;
+                        $("input[name='token']").val(token);
+                        console.log("Token: " + token);
+
+                        var senderHash = PagSeguroDirectPayment.getSenderHash();
+                        $("input[name='senderHash']").val(senderHash);
+                        $("form").submit();
+                    },
+                    error: function(json){
+                        console.log(json);
+                    },
+                    complete:function(json){
+                    }
+                }
+
+                PagSeguroDirectPayment.createCardToken(param);
+                },
+                error: function(json){
+                console.log(json);
+                },
+                complete: function(json){
+                }
+            });
+            
         });
 
         jQuery(function($) {
@@ -110,43 +149,6 @@
             complete: function(json){
             }
           });
-
-          PagSeguroDirectPayment.getBrand({
-            cardBin: $("input[name='cardNumber']").val().replace(/ /g,''),
-            success: function(json){
-              var brand = json.brand.name;
-
-              $("input[name='brand']").val(brand);
-
-              console.log(brand);
-              
-              var param = {
-                cardNumber: $("input[name='cardNumber']").val().replace(/ /g,''),
-                brand: brand,
-                cvv: $("input[name='cardCVC']").val(),
-                expirationMonth: $("input[name='cardExpiry']").val().split('/')[0],
-                expirationYear: $("input[name='cardExpiry']").val().split('/')[1],
-                success: function(json){
-                  var token = json.card.token;
-                  $("input[name='token']").val(token);
-                  console.log("Token: " + token);
-                },
-                error: function(json){
-                    console.log(json);
-                },
-                complete:function(json){
-                }
-              }
-
-              PagSeguroDirectPayment.createCardToken(param);
-            },
-            error: function(json){
-              console.log(json);
-            },
-            complete: function(json){
-            }
-          });
-
         });
 
     </script>
