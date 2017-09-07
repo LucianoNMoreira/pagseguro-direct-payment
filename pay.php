@@ -12,6 +12,11 @@
     $creditCardToken = htmlspecialchars($_POST["token"]);
     $senderHash = htmlspecialchars($_POST["senderHash"]);
 
+    $itemAmount = number_format($_POST["amount"], 2, '.', '');
+    $shippingCoast = number_format($_POST["shippingCoast"], 2, '.', '');
+    $installmentValue = number_format($_POST["installmentValue"], 2, '.', '');
+    $installmentsQty = $_POST["installments"];
+
     $params = array(
         'email'                     => $PAGSEGURO_EMAIL,  
         'token'                     => $PAGSEGURO_TOKEN,
@@ -24,7 +29,7 @@
         // 'extraAmount'               => '1.00',
         'itemId1'                   => '0001',
         'itemDescription1'          => 'PHP Test',  
-        'itemAmount1'               => '100.00',  
+        'itemAmount1'               => $itemAmount,  
         'itemQuantity1'             => 1,
         'reference'                 => 'REF1234',
         'senderName'                => 'Chuck Norris',
@@ -40,9 +45,11 @@
         'shippingAddressState'      => 'PB',
         'shippingAddressCountry'    => 'BRA',
         'shippingType'              => 1,
-        'shippingCost'              => '1.00',
-        'installmentQuantity'       => 1,
-        'installmentValue'          => '101.00',
+        'shippingCost'              => $shippingCoast,
+        'maxInstallmentNoInterest'      => 2,
+        'noInterestInstallmentQuantity' => 2,
+        'installmentQuantity'       => $installmentsQty,
+        'installmentValue'          => $installmentValue,
         'creditCardHolderName'      => 'Chuck Norris',
         'creditCardHolderCPF'       => '54793120652',
         'creditCardHolderBirthDate' => '01/01/1990',
@@ -63,6 +70,7 @@
 ?>
 <body>
     <h1>Pagseguro Test</h1>
+    <h3><?php echo $_POST["installments"] . ' x R$ ' .$_POST["installmentValue"];?></h3>
     <h3>Code: <?php echo $json->code;?></h3>
     <h3>Status: <?php echo $json->status;?></h3>
     <p>Response: <?php print_r($json);  ?></p>
