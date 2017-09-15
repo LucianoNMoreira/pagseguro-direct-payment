@@ -128,10 +128,13 @@
                     var amount = parseFloat($("input[name='amount']").val());
                     var shippingCoast = parseFloat($("input[name='shippingCoast']").val());
                     
+                    //The maximum installment qty with no extra fees (You must configure it on your PagSeguro dashboard with same value)
+                    var max_installment_no_extra_fees = 2;
+
                     PagSeguroDirectPayment.getInstallments({
                         amount: amount + shippingCoast,
                         brand: brand,
-                        maxInstallmentNoInterest: 2,
+                        maxInstallmentNoInterest: max_installment_no_extra_fees,
                         success: function(response) {
                             
                             /*
@@ -142,7 +145,7 @@
                             installments = response.installments[brand];
                             $("#select-installments").html("");
                             for(var installment of installments){
-                                $("#select-installments").append("<option value='" + installment.quantity + "'>" + installment.quantity + " x R$ " + installment.installmentAmount  + "</option>");
+                                $("#select-installments").append("<option value='" + installment.quantity + "'>" + installment.quantity + " x R$ " + installment.installmentAmount + " - " + (installment.quantity <= max_installment_no_extra_fees? "Sem" : "Com")  + " Juros</option>");
                             }
 
                         }, error: function(response) {
